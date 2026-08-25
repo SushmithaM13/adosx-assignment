@@ -39,6 +39,7 @@ function App() {
     if (reason) params.set("reason", reason);
     if (ordering) params.set("ordering", ordering);
 
+    
     setLoading(true);
     setError(null);
     fetch(`${API_BASE}/discrepancies/?${params.toString()}`)
