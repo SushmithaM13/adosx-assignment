@@ -1,27 +1,33 @@
 """
-The actual reconciliation logic.
+Reconciliation logic for comparing System A and System B records.
 
-This module is deliberately plain Python: dataclasses in, dataclasses out,
-no Django ORM, no database. That's the part of this assignment that's worth
-protecting with tests, and it's much easier to write fast, precise tests
-against a pure function than against querysets. reconciliation/views.py is
-the only place that adapts this to Django models.
+This module contains the main comparison logic and does not depend on the
+Django ORM or database. It takes ARecord and BEntry objects as input and
+returns the detected discrepancies. Keeping this logic separate also makes
+it easier to test.
 
-Five things get flagged, one per SystemARecord or "extra" SystemBEntry:
+The following discrepancy types are handled:
 
-  MISSING_IN_B      A record has zero System B entries pointing at it.
-  ORPHAN_IN_B       A System B entry's record_ref doesn't resolve to any
-                    System A record in this tenant (garbage ref, or a
-                    real-looking ref like REC-1999 that just isn't there).
-  DUPLICATE_IN_B    A record has more than one System B entry pointing at it.
-  VALUE_MISMATCH    Exactly one entry, but its value disagrees with the
-                    record's total_value by more than a cent.
-  UNPARSEABLE_VALUE Exactly one entry, but either side's value couldn't be
-                    parsed as a number at all -- distinct from VALUE_MISMATCH
-                    because there's no number to *disagree*, just missing data.
+MISSING_IN_B
+    A System A record has no matching entry in System B.
 
-A record that resolves to exactly one entry with a matching, parseable
-value produces no discrepancy at all.
+ORPHAN_IN_B
+    A System B entry refers to a record that does not exist in System A
+    for the current tenant.
+
+DUPLICATE_IN_B
+    More than one System B entry refers to the same System A record.
+
+VALUE_MISMATCH
+    A matching System B entry exists, but its value is different from
+    the System A total value.
+
+UNPARSEABLE_VALUE
+    A matching entry exists, but the value from either system cannot be
+    parsed as a number.
+
+If a System A record has exactly one matching System B entry and the values
+match, no discrepancy is returned.
 """
 
 from __future__ import annotations
