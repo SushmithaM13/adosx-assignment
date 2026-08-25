@@ -38,7 +38,6 @@ function App() {
     const params = new URLSearchParams({ org_id: orgId });
     if (reason) params.set("reason", reason);
     if (ordering) params.set("ordering", ordering);
-
     
     setLoading(true);
     setError(null);
